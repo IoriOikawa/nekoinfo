@@ -10,4 +10,5 @@ sudo dpkg -i /PATH/TO/THE/nekoinfo.deb
 ```
 
 ### Screenshot
-![screenshot](screenshot.png)
+![screenshot](screenshot.jpg)
+
