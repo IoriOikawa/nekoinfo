@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
+import gi.repository
+gi.require_version("Gtk", "3.0")
+gi.require_version("WebKit", "3.0")
+from gi.repository import Gtk, Gdk, WebKit, Gio, GLib
+import json
+import os
+import psutil
+import signal
+import sys
+from threading import Timer
+
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
+
+class SystemInfo:
+    def __init__(self):
+        self.conf_name = os.path.join(os.path.expanduser("~"), ".systeminfo.json")
+        self.n_cpu = len(psutil.cpu_percent(interval=None, percpu=True))
+        self.read_config()
+        self.init_widget()
+        self.init_widget_position()
+    
+    def read_config(self):
+        if os.path.isfile(self.conf_name):
+            with open(self.conf_name) as f:
+                self.conf = json.loads(f.read())
+        else:
+            self.conf = {
+                "x"      : 100,
+                "y"      : 100,
+                "width"  : 240,
+                "height" : 210,
+                "html"   : "/tmp/systeminfo.html"
+            }
+        self.conf['height'] = 200 + self.n_cpu * 10
+    
+    def init_widget(self):
+        self.window = Gtk.Window(skip_pager_hint=True, skip_taskbar_hint=True)
+        self.window.set_wmclass("sildesktopwidget", "sildesktopwidget")
+        self.window.set_decorated(True)
+        self.window.set_title("🐈 💻")
+        self.window.set_keep_below(True)
+        self.window.set_type_hint(Gdk.WindowTypeHint.DOCK)
+        self.window.connect("destroy", self.on_exit)
+        GLib.set_prgname("nekoinfo")
+
+        # Set transparency
+        screen = self.window.get_screen()
+        rgba = screen.get_rgba_visual()
+        self.window.set_visual(rgba)
+        self.window.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0,0,0,0))
+
+        # Add all the parts
+        self.view = WebKit.WebView()
+        self.view.set_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.BUTTON1_MOTION_MASK)
+        self.view.set_transparent(True)
+        self.view.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0,0,0,0))
+        self.view.props.settings.props.enable_default_context_menu = False
+        self.view.load_uri("file://%s" % (self.conf["html"]))
+        self.window.add(self.view)
+    
+    def init_widget_position(self):
+        self.window.move(self.conf["x"], self.conf["y"])
+        self.window.set_default_size(self.conf["height"], self.conf["width"])
+        self.window.set_position(Gtk.WindowPosition.CENTER)
+    
+    def write_config(self):
+        with open(self.conf_name, "w") as f:
+            f.write(json.dumps(self.conf))
+
+    def run(self):
+        gio_file = Gio.File.new_for_path(self.conf["html"])
+        monitor = gio_file.monitor_file(Gio.FileMonitorFlags.NONE, None)
+        monitor.connect("changed", self.file_changed)
+        
+        self.systeminfo()
+        self.timer = RepeatedTimer(5, self.systeminfo)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        
+        self.window.show_all()
+        Gtk.main()
+    
+    def on_exit(self, widget):
+        # new setting is dumped when app exits.
+        self.timer.stop()
+        self.write_config()
+        Gtk.main_quit()
+    
+    def systeminfo(self):
+        with open(self.conf["html"], "w") as f:
+            f.write("""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
+    <title>System Info</title>
+</head>
+<body style="background-color: rgba(200,200,200,0.5); border-radius: 10px; font-family: monospace;font-size: 15px;-webkit-user-select: none;cursor: default;overflow: hidden;">
+    """)
+            def humanreable(number_of_bytes):
+                symbols = ("K", "M", "G", "T", "P", "E", "Z", "Y")
+                prefix = {}
+                [prefix.setdefault(s, 1 << (i + 1) * 10) for i, s in enumerate(symbols)]
+                for s in reversed(symbols):
+                    if number_of_bytes >= prefix[s]:
+                        value = float(number_of_bytes) / prefix[s]
+                        return "%.2f %s" % (value, s)
+                return "%.2f B" % (number_of_bytes)
+
+            cpu = psutil.cpu_percent(interval=None, percpu=True)
+            f.write("<h3>CPU(%.2f%%)</h3>\n<ul>" % (psutil.cpu_percent(interval=None)))
+            for i in range(len(cpu)):
+                f.write("<li>CPU %d: %.2f%%</li>\n" % (i, cpu[i]))
+            f.write("</ul>")
+
+            memory = psutil.virtual_memory()
+            f.write("<h3>Memory(%.2f%%)</h3>\n<ul>" % (memory.percent))
+            f.write("<li>total:&nbsp;%s</li>\n" % (humanreable(memory.total)))
+            f.write("<li>used:&nbsp;&nbsp;%s</li>\n" % (humanreable(memory.used)))
+            f.write("<li>free:&nbsp;&nbsp;%s</li>\n</ul>" % (humanreable(memory.free)))
+            f.write("""
+<span style="display: none;">made with ❤️ for kawaii Iori</span>
+</body>
+</html>
+    """)
+
+    def refresh_file(self, *args):
+        self.view.reload()
+        self.conf["x"] += 5
+        self.window.move(int(self.conf["x"]), int(self.conf["y"]))
+
+    def file_changed(self, monitor, file, unknown, event):
+        GLib.timeout_add_seconds(2, self.refresh_file)
+
+
+if __name__ == '__main__':
+    info = SystemInfo()
+    info.run()

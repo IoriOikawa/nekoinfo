@@ -1,0 +1,9 @@
+Package: nekoinfo
+Version: 1.0
+Section: misc
+Priority: optional
+Maintainer: Cocoa Oikawa
+Architecture: all
+Depends: python3, gir1.2-webkit-3.0
+Suggests: daemon
+Description: Show System Info on Desktop

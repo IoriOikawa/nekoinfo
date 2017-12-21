@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=nekoinfo
+Type=Application
+Comment=Show System Info on Desktop
+Terminal=false
+Exec=nekoinfo
+Icon=accessories-nekoinfo
+Keywords=system;

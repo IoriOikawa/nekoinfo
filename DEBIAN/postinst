@@ -1,0 +1,10 @@
+#!/bin/sh
+echo "Installing Python dependency for nekoinfo..."
+sudo -H pip3 install psutil PyGObject
+echo "To continuously run this application, "
+echo "It's recommanded to install \`daemon\`"
+echo "You may type \`sudo apt-get install daemon\` to install daemon"
+echo "And then use \`daemon -r --name=nekoinfo nekoinfo\` to start it"
+echo "To stop nekoinfo, you may type \`daemon --stop --name=nekoinfo\`"
+echo "[Done] 🐈💻"
+
