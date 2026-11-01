@@ -51,7 +51,9 @@ The GTK smoke now injects a user-priority zero-font parent rule and verifies the
 
 [Run 41322606447](https://github.com/IoriOikawa/nekoinfo/actions/runs/41322606447), commit 5933246, passed both Debian stable and Arch jobs on 2026-11-01. Both jobs built and installed their native packages, checked CLI version/desktop entry/icon and ran the installed GTK smoke, including the zero-font theme guard. Package artifacts were uploaded. This establishes Linux package and Xvfb coverage, not a real GNOME/KDE session or Ubuntu GTK 4.14 behavior.
 
-Detailed Debian logs also exposed missing dh_python3 sequence integration and zero tests discovered inside the package build (the separate CI unit step did run all 21 tests). A follow-up enables the Python3 debhelper sequence, explicitly selects the source tests directory, and checks the built package has a Python interpreter dependency. Its fresh CI run must be checked before using its artifacts.
+The first Debian logs exposed missing dh_python3 sequence integration and zero tests discovered inside the package build (the separate CI unit step did run all 21 tests). The follow-up enabled the Python3 debhelper sequence, explicitly selected the source tests directory, and checked the built package has a Python interpreter dependency.
+
+[Run 41322863594](https://github.com/IoriOikawa/nekoinfo/actions/runs/41322863594), commit 9594ad9, then passed both jobs. Debian logs confirm 21 tests in the separate unit step and another 21 inside pybuild, dh_python3 execution, a generated python3:any dependency, successful package installation and installed GTK smoke. Arch again passed build/install/smoke. Both uploaded package artifacts. This is the verified code/packaging checkpoint; later documentation-only changes do not extend the desktop claims.
 
 ## Target matrix
 

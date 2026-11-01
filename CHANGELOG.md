@@ -11,6 +11,7 @@
 - Give only the application's login-switch images a nonzero font to protect GTK4 baseline calculation from zero-font theme rules.
 - Provide Debian/Ubuntu source packaging, an Arch local-source PKGBUILD and Linux build/smoke CI configuration.
 - Add the user-provided Ubuntu screenshot, Chinese README, installation guide, FAQ and explicit validation matrix.
+- Verify Debian stable and Arch package build/install and installed Xvfb GTK smoke in CI; run all 21 unit tests during Debian package build and generate Python runtime dependencies.
 
 Ubuntu installation/window refresh and the theme-file correction have been reported successful by the user. The application-local theme guard and other desktop/distribution combinations still need the validation listed in [testing.md](docs/testing.md).
 

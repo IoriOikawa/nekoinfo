@@ -87,7 +87,7 @@ PYTHONPATH=src xvfb-run -a dbus-run-session -- python3 tests/gtk_smoke.py
 
 After package installation, omit PYTHONPATH to test the installed module rather than source. The smoke covers drawing, one live window/timer, processor expansion, a zero-font switch theme, denied login writes and cleanup. Missing GTK/display dependencies are failures, not silently skipped tests.
 
-[GitHub Actions](../.github/workflows/ci.yml) defines Debian stable and Arch container builds, package installation and installed GTK smoke checks, with downloadable package artifacts when successful. Container/Xvfb success does not establish GNOME/KDE Wayland behavior. The first pushed run passed both jobs; see [recorded evidence](testing.md#linux-ci). Check the actual run results for the commit you use. Debian-built .deb artifacts are tested on Debian stable; Ubuntu users should build locally until that exact artifact has been verified on their Ubuntu release.
+[GitHub Actions](../.github/workflows/ci.yml) defines Debian stable and Arch container builds, package installation and installed GTK smoke checks, with downloadable package artifacts when successful. Container/Xvfb success does not establish GNOME/KDE Wayland behavior. Both jobs passed, including the follow-up Debian dependency/test-discovery checks; see [recorded evidence](testing.md#linux-ci). Check the actual run results for the commit you use. Debian-built .deb artifacts are tested on Debian stable; Ubuntu users should build locally until that exact artifact has been verified on their Ubuntu release.
 
 ## Contributing
 

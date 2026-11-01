@@ -50,7 +50,7 @@ Design: `docs/superpowers/specs/2026-11-01-lightweight-desktop-design.md`.
 ## Task 4: one build and two distro packages
 
 - [x] Add standard project metadata and data-files; build with `python3 -m build` in a temporary development environment. Inspect wheel and sdist for required files and absence of legacy duplication.
-- [x] Debian: use debhelper, dh-python, pybuild and setuptools; runtime deps include python3-psutil, python3-gi, python3-gi-cairo, python3-cairo and gir1.2-gtk-4.0. Validate source structure. Linux execution of `dpkg-buildpackage -us -uc -b` remains pending in the matrix below.
+- [x] Debian: use debhelper, dh-python, pybuild and setuptools; runtime deps include python3-psutil, python3-gi, python3-gi-cairo, python3-cairo and gir1.2-gtk-4.0. Validate source structure. Linux package build/install now passes in CI; see the current matrix in docs/testing.md.
 - [x] Arch: declare python, python-psutil, python-gobject, python-cairo, gtk4; build with python-build/python-installer/python-setuptools/python-wheel. Use an actual local release archive and checksum, with documented creation and `makepkg` instructions; do not invent a published URL/tag.
 - [x] Add CI jobs using Debian stable and Arch containers with Xvfb, GTK smoke verification and package artifacts. Validate command paths from built packages, including desktop icon resolution.
 - [x] Remove legacy executable and packaged tree only after standard build includes replacements.
@@ -86,6 +86,6 @@ These pending checks are release validation requirements; they are not claimed c
 - [x] Add application-scoped nonzero switch-image font guard after the user confirmed the theme's zero-font trigger. Watch the GTK smoke fail before implementation and pass afterward.
 - [x] Rewrite English/Chinese README, build/install guide, FAQ, changelog and validation record around the supplied screenshot_new.png and actual field results.
 - [ ] Confirm the application-local theme guard on Ubuntu with the original unmodified theme.
-- [x] Push dev and inspect Debian/Arch CI run 41322606447: both package jobs passed. Detailed logs prompted a follow-up Python dependency/test-discovery packaging correction, to be rechecked in CI.
+- [x] Push dev and inspect runs 41322606447 and 41322863594: Debian and Arch pass. The second run also confirms Debian Python dependency generation and all 21 tests inside pybuild.
 
 The current validation source of truth is docs/testing.md; the earlier evidence sections describe the initial implementation checkpoint.
