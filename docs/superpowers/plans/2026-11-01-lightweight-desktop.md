@@ -73,7 +73,7 @@ Initial implementation: 18 unittests passed on macOS Python 3.14.3; Python 3.12.
 - Installed wheel tested from outside the source tree: CLI version, sampling, drawing, window reuse and cleanup pass.
 - Wheel/sdist build, packaged resources, shell syntax and whitespace checks pass.
 - Spec and code quality reviewers approved after fixing the Debian GTK4.18 dark-preference gap.
-- [ ] Execute Debian and Arch package builds/installations in Linux (CI prepared, not run here).
+- [x] Execute Debian and Arch package builds/installations in Linux CI (run 41322606447; desktop sessions remain separate).
 - [ ] Validate GNOME/KDE Wayland, real login/suspend/high-DPI behavior and capture Linux screenshots.
 - [ ] Measure 30-minute resource usage on Linux before setting a numeric performance budget.
 
@@ -86,6 +86,6 @@ These pending checks are release validation requirements; they are not claimed c
 - [x] Add application-scoped nonzero switch-image font guard after the user confirmed the theme's zero-font trigger. Watch the GTK smoke fail before implementation and pass afterward.
 - [x] Rewrite English/Chinese README, build/install guide, FAQ, changelog and validation record around the supplied screenshot_new.png and actual field results.
 - [ ] Confirm the application-local theme guard on Ubuntu with the original unmodified theme.
-- [ ] Push dev and inspect the resulting Debian/Arch CI runs; record their outcomes separately from real desktop validation.
+- [x] Push dev and inspect Debian/Arch CI run 41322606447: both package jobs passed. Detailed logs prompted a follow-up Python dependency/test-discovery packaging correction, to be rechecked in CI.
 
 The current validation source of truth is docs/testing.md; the earlier evidence sections describe the initial implementation checkpoint.

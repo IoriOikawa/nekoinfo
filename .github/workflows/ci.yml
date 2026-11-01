@@ -15,6 +15,7 @@ jobs:
       - name: Install and verify actual package
         run: |
           apt-get install -y ../nekoinfo_2.0.0_all.deb
+          dpkg-deb -f ../nekoinfo_2.0.0_all.deb Depends | grep -E '(^|, )python3(:any)?([ ,(]|$)'
           nekoinfo --version
           desktop-file-validate /usr/share/applications/nekoinfo.desktop
           test -f /usr/share/icons/hicolor/scalable/apps/nekoinfo.svg

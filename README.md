@@ -27,8 +27,8 @@ The current development version is **2.0.0**. Build from source using the [Debia
 | Platform | Status |
 | --- | --- |
 | Ubuntu 24.04.5 LTS, GNOME 46.0, GTK 4.14.5 | User-tested package installation, window display and live refresh; new screenshot supplied |
-| Debian stable | Packaging and CI configuration provided; target execution pending |
-| Arch Linux | Local-source PKGBUILD and CI configuration provided; target execution pending |
+| Debian stable | CI package build/install and installed Xvfb smoke passed; GNOME/KDE desktop checks pending |
+| Arch Linux | CI package build/install and installed Xvfb smoke passed; GNOME/KDE desktop checks pending |
 | Other desktops / X11 / Wayland combinations | See the [validation matrix](docs/testing.md); no blanket compatibility claim |
 
 There is no official Debian repository entry or AUR publication for this version. Building an installable package and publishing to distribution repositories are separate steps.

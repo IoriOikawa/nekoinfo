@@ -15,8 +15,8 @@ This file separates automated/local evidence, user-reported Linux observations a
 | Native GTK smoke | Pass | macOS GTK 4.24 / PyGObject 3.58 / Python 3.14.3; drawing, live window/timer, expansion, denied login writes, zero-font theme and cleanup |
 | Ubuntu installation and basic use | User reports success | Ubuntu 24.04.5 LTS x86_64, GNOME 46.0/Mutter, GTK 4.14.5+ds-0ubuntu0.10 |
 | Screenshot | User-provided real window capture | ../screenshot_new.png; custom dark theme, processor details expanded |
-| Independent review | Initial app and renderer fix reviewed | New theme guard/documentation reviewed separately before push |
-| CI configuration | Debian stable and Arch jobs provided | Consult actual GitHub Actions results; configuration alone is not a successful run |
+| Independent review | Passed | App, renderer fix, local theme guard and documentation reviewed |
+| Linux CI | Both package jobs passed | Debian stable and Arch containers; build, install, CLI/menu resources, installed Xvfb GTK smoke |
 
 Development host: macOS arm64. Python 3.12.12 with psutil 7.2.2 is used for isolated unit/build checks. No Linux VM/container engine is installed locally. The temporary macOS GTK test runtime is not shipped with the application.
 
@@ -47,15 +47,21 @@ For distribution, Neko Info instead marks its login switch and explicitly sets o
 
 The GTK smoke now injects a user-priority zero-font parent rule and verifies the marked images retain nonzero font metrics. This passes locally on GTK 4.24, where the original invalid baseline was not reproduced. The application-local guard still needs installation and confirmation on Ubuntu GTK 4.14.5, with an unmodified zero-font theme. Healthy light/dark themes and high-DPI appearance must also be checked.
 
+## Linux CI
+
+[Run 41322606447](https://github.com/IoriOikawa/nekoinfo/actions/runs/41322606447), commit 5933246, passed both Debian stable and Arch jobs on 2026-11-01. Both jobs built and installed their native packages, checked CLI version/desktop entry/icon and ran the installed GTK smoke, including the zero-font theme guard. Package artifacts were uploaded. This establishes Linux package and Xvfb coverage, not a real GNOME/KDE session or Ubuntu GTK 4.14 behavior.
+
+Detailed Debian logs also exposed missing dh_python3 sequence integration and zero tests discovered inside the package build (the separate CI unit step did run all 21 tests). A follow-up enables the Python3 debhelper sequence, explicitly selects the source tests directory, and checks the built package has a Python interpreter dependency. Its fresh CI run must be checked before using its artifacts.
+
 ## Target matrix
 
 | Environment | Package build/install | Window/live refresh | Theme/login/suspend/scaling/performance |
 | --- | --- | --- | --- |
 | Ubuntu 24.04.5, GNOME 46.0, GTK 4.14.5; session type unreported | User-reported success | User-reported success; screenshot supplied | Theme-file correction confirmed; app-local guard and remaining checks pending |
-| Debian stable, GNOME Wayland | Pending | Pending | Pending |
-| Debian stable, KDE Wayland | Pending | Pending | Pending |
-| Arch Linux, GNOME Wayland | Pending | Pending | Pending |
-| Arch Linux, KDE Wayland | Pending | Pending | Pending |
+| Debian stable, GNOME Wayland | CI build/install passed | Desktop pending; installed Xvfb smoke passed | Pending |
+| Debian stable, KDE Wayland | CI build/install passed | Desktop pending; installed Xvfb smoke passed | Pending |
+| Arch Linux, GNOME Wayland | CI build/install passed | Desktop pending; installed Xvfb smoke passed | Pending |
+| Arch Linux, KDE Wayland | CI build/install passed | Desktop pending; installed Xvfb smoke passed | Pending |
 | Other X11 sessions | Pending | Pending | Pending |
 
 A Debian/Arch container build and installed Xvfb smoke can validate packaging and GTK startup, but not GNOME/KDE Wayland behavior. Login execution requires an actual desktop session. No measured CPU/RSS budget is published yet.

@@ -23,7 +23,7 @@
 当前开发版本为 **2.0.0**。请按[构建与安装说明](docs/building.md)从源码生成 Debian/Ubuntu 的 .deb，或使用 Arch 的 PKGBUILD。依赖通过发行版包管理器安装，不使用安装脚本执行 pip。
 
 - **Ubuntu 24.04.5 LTS / GNOME 46.0 / GTK 4.14.5**：用户已实测安装、窗口显示与持续刷新，并提供新版截图。
-- **Debian stable、Arch Linux**：已提供打包与 CI 配置，目标环境构建执行仍待验证。
+- **Debian stable、Arch Linux**：CI 中已通过打包、安装和安装后 Xvfb 界面检查；GNOME/KDE 桌面会话仍待实机验证。
 - 其他桌面以及 X11/Wayland 组合：以[验证矩阵](docs/testing.md)为准。
 
 当前版本尚未进入 Debian 官方仓库或发布到 AUR。

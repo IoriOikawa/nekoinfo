@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
 export PYBUILD_NAME=nekoinfo
+export PYBUILD_TEST_ARGS=-s {dir}/tests
 %:
-	dh $@ --buildsystem=pybuild
+	dh $@ --with python3 --buildsystem=pybuild

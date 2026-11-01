@@ -60,7 +60,7 @@ nekoinfo
 
 Run prepare-source.sh from the repository and makepkg as an ordinary user. The helper creates a real local source archive beside PKGBUILD and records its SHA-256; regenerate it after changing source or documentation. The recipe intentionally does not refer to an unpublished release URL. Generated archives/build outputs are ignored by Git and excluded from subsequent sdists.
 
-Remove with `sudo pacman -R nekoinfo`, after disabling login startup. This recipe has not been published to AUR, and its target-machine execution remains pending until recorded in testing.md or a successful CI run.
+Remove with `sudo pacman -R nekoinfo`, after disabling login startup. This recipe has not been published to AUR, and its container build/install/installed-GTK smoke passed in CI; real desktop checks remain pending.
 
 ## Source development
 
@@ -87,7 +87,7 @@ PYTHONPATH=src xvfb-run -a dbus-run-session -- python3 tests/gtk_smoke.py
 
 After package installation, omit PYTHONPATH to test the installed module rather than source. The smoke covers drawing, one live window/timer, processor expansion, a zero-font switch theme, denied login writes and cleanup. Missing GTK/display dependencies are failures, not silently skipped tests.
 
-[GitHub Actions](../.github/workflows/ci.yml) defines Debian stable and Arch container builds, package installation and installed GTK smoke checks, with downloadable package artifacts when successful. Container/Xvfb success does not establish GNOME/KDE Wayland behavior. Check the actual run results; configuration alone is not evidence of a successful build.
+[GitHub Actions](../.github/workflows/ci.yml) defines Debian stable and Arch container builds, package installation and installed GTK smoke checks, with downloadable package artifacts when successful. Container/Xvfb success does not establish GNOME/KDE Wayland behavior. The first pushed run passed both jobs; see [recorded evidence](testing.md#linux-ci). Check the actual run results for the commit you use. Debian-built .deb artifacts are tested on Debian stable; Ubuntu users should build locally until that exact artifact has been verified on their Ubuntu release.
 
 ## Contributing
 
