@@ -1,0 +1,11 @@
+include LICENSE
+recursive-include data *.desktop *.svg
+recursive-include tests *.py
+recursive-include debian *
+recursive-include packaging *
+recursive-include docs *.md
+include .github/workflows/ci.yml
+exclude packaging/arch/nekoinfo-*.tar.gz
+prune packaging/arch/pkg
+prune packaging/arch/src
+global-exclude *.pyc *.pkg.tar.*

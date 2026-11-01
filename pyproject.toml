@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nekoinfo"
+version = "2.0.0"
+description = "A small native GTK4 Linux system monitor"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Cocoa Oikawa"}]
+dependencies = ["psutil>=5.9"]
+
+[project.scripts]
+nekoinfo = "nekoinfo.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.data-files]
+"share/applications" = ["data/nekoinfo.desktop"]
+"share/icons/hicolor/scalable/apps" = ["data/nekoinfo.svg"]

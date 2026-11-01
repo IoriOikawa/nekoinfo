@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Neko Info
+Comment=CPU, memory and network at a glance
+Exec=nekoinfo
+Icon=nekoinfo
+Terminal=false
+Categories=System;Monitor;
+StartupNotify=true
