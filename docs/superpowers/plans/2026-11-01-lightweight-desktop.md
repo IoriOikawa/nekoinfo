@@ -50,9 +50,9 @@ Design: `docs/superpowers/specs/2026-11-01-lightweight-desktop-design.md`.
 ## Task 4: one build and two distro packages
 
 - [x] Add standard project metadata and data-files; build with `python3 -m build` in a temporary development environment. Inspect wheel and sdist for required files and absence of legacy duplication.
-- [ ] Debian: use debhelper, dh-python, pybuild and setuptools; runtime deps include python3-psutil, python3-gi, python3-gi-cairo, python3-cairo and gir1.2-gtk-4.0. Validate source structure and run `dpkg-buildpackage -us -uc -b` in Debian when available.
+- [x] Debian: use debhelper, dh-python, pybuild and setuptools; runtime deps include python3-psutil, python3-gi, python3-gi-cairo, python3-cairo and gir1.2-gtk-4.0. Validate source structure. Linux execution of `dpkg-buildpackage -us -uc -b` remains pending in the matrix below.
 - [x] Arch: declare python, python-psutil, python-gobject, python-cairo, gtk4; build with python-build/python-installer/python-setuptools/python-wheel. Use an actual local release archive and checksum, with documented creation and `makepkg` instructions; do not invent a published URL/tag.
-- [ ] Add CI jobs using Debian stable and Arch containers with Xvfb, GTK smoke verification and package artifacts. Validate command paths from built packages, including desktop icon resolution.
+- [x] Add CI jobs using Debian stable and Arch containers with Xvfb, GTK smoke verification and package artifacts. Validate command paths from built packages, including desktop icon resolution.
 - [x] Remove legacy executable and packaged tree only after standard build includes replacements.
 
 ## Task 5: validation and delivery
@@ -60,9 +60,21 @@ Design: `docs/superpowers/specs/2026-11-01-lightweight-desktop-design.md`.
 - [x] Update README with actual build/install/uninstall commands, supported Python, CLI launch, autostart, data semantics and honest compatibility status. Document GNOME/KDE Wayland matrix as pending unless actually exercised.
 - [x] Run unit tests, compile checks, wheel/sdist build and whitespace checks. Run GTK smoke where dependencies/display are available. Record exact commands, counts and limitations in `docs/testing.md`.
 - [x] Add repeatable 30-minute memory/CPU and login/suspend/network/high-DPI manual verification instructions. No unmeasured resource claims or fabricated screenshots.
-- [ ] Request independent spec review, resolve required findings, then independent quality review and resolve required findings. Update this checklist with evidence.
-- [ ] Commit implementation on `codex/lightweight-desktop`. Make the reviewed branch available in the user's original workspace, keeping master history intact and retaining any unverified Linux checks explicitly.
+- [x] Request independent spec review, resolve required findings, then independent quality review and resolve required findings. Update this checklist with evidence.
+- [x] Commit implementation on `codex/lightweight-desktop`. Make the reviewed branch available in the user's original workspace, keeping master history intact and retaining any unverified Linux checks explicitly.
 
 ## Implementation evidence (2026-11-01)
 
 18 unittests pass on macOS Python 3.14.3; Python 3.12.12 wheel/sdist build and archive inspection pass. Real psutil sampling and native macOS GTK4.24 smoke pass (single window/timer, all Cairo charts, scrollable expander minimum, close cleanup). Debian/Arch build and installed Linux smoke remain pending; CI is configured, not executed. GNOME/KDE Wayland, 30-minute performance/login/suspend manual checks remain pending in docs/testing.md. Parent coordinates independent review and final branch delivery.
+
+## Delivery evidence
+
+- Implemented and independently reviewed; 18 unit tests pass on Python 3.12 and native GTK smoke passes on macOS/Python 3.14.
+- Installed wheel tested from outside the source tree: CLI version, sampling, drawing, window reuse and cleanup pass.
+- Wheel/sdist build, packaged resources, shell syntax and whitespace checks pass.
+- Spec and code quality reviewers approved after fixing the Debian GTK4.18 dark-preference gap.
+- [ ] Execute Debian and Arch package builds/installations in Linux (CI prepared, not run here).
+- [ ] Validate GNOME/KDE Wayland, real login/suspend/high-DPI behavior and capture Linux screenshots.
+- [ ] Measure 30-minute resource usage on Linux before setting a numeric performance budget.
+
+These pending checks are release validation requirements; they are not claimed complete.

@@ -9,6 +9,10 @@ Development host: macOS arm64, Python 3.14.3; isolated build environment Python 
 - Isolated `python -m build`: wheel and sdist, inspected for a single source package, launcher entry point, desktop file and icon.
 - `git diff --check`: whitespace validation.
 - Real psutil sampling without GTK: warm-up and later sample exercised.
+- Installed the built wheel in an isolated Python 3.14 environment and ran the native GTK smoke from outside the repository, resolving the installed package rather than source. CLI `nekoinfo --version` returned 2.0.0.
+- Visually inspected the actual macOS GTK window: current values and four curves render, processor details expand, and closing exits the process. This does not validate Linux appearance.
+- Shell syntax checked for PKGBUILD and prepare-source.sh; tracked executable bits checked for debian/rules and prepare-source.sh.
+- Independent design and code reviews approved the implementation; the older-GTK desktop appearance adapter was added in response to review.
 - Native GTK smoke: task-local Homebrew GTK 4.24/PyGObject 3.58 runtime, Python 3.14.3, macOS display. `python3 <temporary-runtime>/run.py /tmp/nekoinfo-gtk-env/bin/python tests/gtk_smoke.py` sampled, drew all four charts, repeated activation, closed the window and verified removal of the GLib timer. This is not Linux compatibility evidence; the temporary runtime is not part of the application.
 
 The GTK smoke intentionally fails when dependencies/display are absent. On Linux with distro dependencies, run `xvfb-run -a dbus-run-session -- python3 tests/gtk_smoke.py` after installing the package, or set `PYTHONPATH=src` to test source. CI config builds/installs Debian and Arch packages and runs this smoke against the installed package; CI execution is not yet verified.
