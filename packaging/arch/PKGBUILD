@@ -9,7 +9,7 @@ depends=('python' 'python-psutil' 'python-gobject' 'python-cairo' 'gtk4')
 makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
 source=("nekoinfo-${pkgver}.tar.gz")
 # prepare-source.sh writes the actual archive checksum here.
-sha256sums=('64da25c6d2b17233d4cb41cffead6d66eab53a345281d7663fc9b225b40adb28')
+sha256sums=('55f9fca3a4ef0a6df08827bcd0322eab27bac6f8ddce1e01cd812424258d62c3')
 
 build() {
   cd "$srcdir/nekoinfo-$pkgver"

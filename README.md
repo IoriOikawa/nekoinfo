@@ -56,6 +56,8 @@ Download and upload aggregate non-loopback network interfaces using counter diff
 
 **Start at login** defaults off. Enabling writes only an application-owned `$XDG_CONFIG_HOME/autostart/nekoinfo.desktop` (default `~/.config/autostart/`). Disable it before uninstalling, or remove that file yourself afterward. An unrelated file at that path is left untouched and an error is shown. This setting launches at desktop login, not system boot.
 
+On GTK versions before 4.20, system dark/light preference is read asynchronously from the desktop appearance portal; without a portal, the native GTK theme remains the fallback. Newer GTK follows the setting directly.
+
 This is a normal movable/closable window. Desktop pinning, process management, GPU/temperature/disk metrics, remote monitoring and animated mascots are outside this version. It follows desktop font/theme settings; the old HTML-path/window-position configuration is not migrated.
 
 The existing `screenshot.jpg` shows the **historical browser-based version**, not this release. No new desktop screenshot or performance figure is supplied until captured on the target Linux desktop. MIT license and original artwork/author attribution are preserved.

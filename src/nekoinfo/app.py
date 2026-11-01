@@ -6,6 +6,7 @@ from gi.repository import Gtk, GLib
 from .autostart import Autostart
 from .charts import Trend
 from .metrics import History, Sampler
+from .theme import SystemTheme, connect_portal
 
 
 def size(value):
@@ -126,13 +127,20 @@ class NekoApplication(Gtk.Application):
     def __init__(self):
         super().__init__(application_id='io.github.paperneko.NekoInfo')
         self.window = None
+        self.theme = None
 
     def do_activate(self):
+        settings = Gtk.Settings.get_default()
+        if self.theme is None and not settings.find_property("gtk-interface-color-scheme"):
+            self.theme = SystemTheme(settings, connect_portal)
         if self.window is None:
             self.window = NekoWindow(self)
         self.window.present()
 
     def do_shutdown(self):
+        if self.theme is not None:
+            self.theme.close()
+            self.theme = None
         if self.window is not None:
             self.window.on_close()
         Gtk.Application.do_shutdown(self)

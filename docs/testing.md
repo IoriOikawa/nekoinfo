@@ -4,7 +4,7 @@
 
 Development host: macOS arm64, Python 3.14.3; isolated build environment Python 3.12.12, psutil 7.2.2. No Linux VM/container engine is installed on this host.
 
-- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: 15 tests pass (CPU warm-up/averaging, memory semantics, network intervals/interface changes/resets/errors, suspend detection, bounded history, XDG default/ownership/quoting/errors and CLI version).
+- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: 18 tests pass (CPU warm-up/averaging, memory semantics, network intervals/interface changes/resets/errors, suspend detection, bounded history, XDG default/ownership/quoting/errors CLI version and portal theme mapping/error/cleanup).
 - `PYTHONPATH=src python3 -m compileall -q src tests`: bytecode compilation.
 - Isolated `python -m build`: wheel and sdist, inspected for a single source package, launcher entry point, desktop file and icon.
 - `git diff --check`: whitespace validation.
