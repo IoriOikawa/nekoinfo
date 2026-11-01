@@ -65,4 +65,4 @@ Design: `docs/superpowers/specs/2026-11-01-lightweight-desktop-design.md`.
 
 ## Implementation evidence (2026-11-01)
 
-14 unittests pass on macOS Python 3.14.3; Python 3.12.12 wheel/sdist build and archive inspection pass. Real psutil sampling and native macOS GTK4.24 smoke pass (single window/timer, all Cairo charts, scrollable expander minimum, close cleanup). Debian/Arch build and installed Linux smoke remain pending; CI is configured, not executed. GNOME/KDE Wayland, 30-minute performance/login/suspend manual checks remain pending in docs/testing.md. Parent coordinates independent review and final branch delivery.
+15 unittests pass on macOS Python 3.14.3; Python 3.12.12 wheel/sdist build and archive inspection pass. Real psutil sampling and native macOS GTK4.24 smoke pass (single window/timer, all Cairo charts, scrollable expander minimum, close cleanup). Debian/Arch build and installed Linux smoke remain pending; CI is configured, not executed. GNOME/KDE Wayland, 30-minute performance/login/suspend manual checks remain pending in docs/testing.md. Parent coordinates independent review and final branch delivery.

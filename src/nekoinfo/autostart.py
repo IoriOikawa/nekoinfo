@@ -21,7 +21,10 @@ class Autostart:
         self.launcher = launcher
 
     def _owned(self):
-        return OWNER in self.path.read_text().splitlines()
+        try:
+            return OWNER in self.path.read_text(encoding="utf-8").splitlines()
+        except UnicodeError:
+            return False
 
     def enabled(self):
         return self.path.is_file() and self._owned()

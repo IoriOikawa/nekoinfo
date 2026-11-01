@@ -40,6 +40,13 @@ class AutostartTests(unittest.TestCase):
         for enabled in (True, False):
             with self.assertRaises(FileExistsError): self.a.set_enabled(enabled)
         self.assertIn('Name=Other', self.a.path.read_text())
+    def test_invalid_utf8_is_unowned_and_untouched(self):
+        self.a.path.parent.mkdir()
+        self.a.path.write_bytes(b'\xffother')
+        self.assertFalse(self.a.enabled())
+        with self.assertRaises(FileExistsError): self.a.set_enabled(True)
+        self.assertEqual(self.a.path.read_bytes(), b'\xffother')
+
     def test_missing_launcher_and_write_error_propagate(self):
         a = Autostart(self.path, None)
         with patch('nekoinfo.autostart.shutil.which', return_value=None):
