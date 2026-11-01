@@ -1,65 +1,65 @@
 # Neko Info
 
-A small native Linux desktop window for CPU, memory and network activity. Python 3.11+, GTK4, psutil and Cairo replace the old browser-based display. It samples every two seconds and keeps up to 60 seconds of in-memory trends. A static cat, system light/dark theme, scrollable logical-processor details and an opt-in **Start at login** switch keep the default view compact.
+A small native Linux desktop monitor. Keep CPU, memory and network activity in view, with a static cat and no browser engine.
 
-This is a source release under development, not an official Debian repository or AUR package. Debian stable and Arch Linux are the packaging targets. Linux desktop and package validation remains pending; see [testing status](docs/testing.md). No resource-use benchmark is claimed.
+[简体中文](README.zh-CN.md) · [Build and install](docs/building.md) · [FAQ](docs/faq.md) · [Testing status](docs/testing.md)
 
-## Build and install
+![Neko Info on Ubuntu with a custom dark theme](screenshot_new.png)
 
-Use distribution packages for runtime dependencies; the application never runs pip or downloads dependencies on installation/startup.
+*User-provided screenshot from Ubuntu 24.04.5 LTS, GNOME 46.0. Processor details are expanded; the default view is more compact.*
 
-Debian development/build environment:
+## What it does
+
+- CPU usage, memory used/available, and download/upload rates.
+- Two-second sampling with 60 seconds of in-memory trends.
+- Expandable, scrollable logical-processor details.
+- Native GTK4 controls and desktop light/dark appearance integration.
+- Optional **Start at login**, disabled by default.
+
+Close the window to exit. It runs as an ordinary user, keeps one live application window per desktop session, and has no background restart service, telemetry or saved metric history.
+
+This is a normal desktop window. Desktop pinning, process management, GPU/temperature/disk metrics, remote monitoring and animated mascots are outside this version. Resource-use benchmarks have not been measured yet.
+
+## Install
+
+The current development version is **2.0.0**. Build from source using the [Debian/Ubuntu or Arch instructions](docs/building.md). Distribution packages supply Python, GTK and the other dependencies; installation does not run pip.
+
+| Platform | Status |
+| --- | --- |
+| Ubuntu 24.04.5 LTS, GNOME 46.0, GTK 4.14.5 | User-tested package installation, window display and live refresh; new screenshot supplied |
+| Debian stable | Packaging and CI configuration provided; target execution pending |
+| Arch Linux | Local-source PKGBUILD and CI configuration provided; target execution pending |
+| Other desktops / X11 / Wayland combinations | See the [validation matrix](docs/testing.md); no blanket compatibility claim |
+
+There is no official Debian repository entry or AUR publication for this version. Building an installable package and publishing to distribution repositories are separate steps.
+
+After installation, launch **Neko Info** from the application menu or run:
 
 ```sh
-sudo apt install build-essential debhelper dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-build python3-wheel python3-psutil python3-gi python3-gi-cairo python3-cairo gir1.2-gtk-4.0
-# Run from this source directory:
-dpkg-buildpackage -us -uc -b
-sudo apt install ../nekoinfo_2.0.0_all.deb
 nekoinfo
-# Remove:
-sudo apt remove nekoinfo
 ```
 
-Arch development/build environment:
+For login startup, enable **Start at login** in the window. Disable it before uninstalling. The [FAQ](docs/faq.md#start-at-login) explains where the entry is stored.
 
-```sh
-sudo pacman -S --needed base-devel python python-psutil python-gobject python-cairo gtk4 python-build python-installer python-setuptools python-wheel
-# Generate a real local sdist and write its SHA-256 into PKGBUILD:
-./packaging/arch/prepare-source.sh
-cd packaging/arch
-makepkg -si
-# Remove:
-sudo pacman -R nekoinfo
-```
+## Compatibility
 
-The Arch recipe uses the archive beside PKGBUILD, not a fictitious release URL. Regenerate the archive and checksum after source changes. The recorded checksum documents a generated local archive; generated archives are not tracked. Build as an ordinary user.
+Linux launches default to GTK's Cairo renderer, following an Ubuntu report where EGL/Mesa initialization delayed startup by about 30 seconds. This affects only Neko Info; an explicit `GSK_RENDERER` remains respected. See [renderer troubleshooting](docs/faq.md#slow-startup-or-eglmesa-warnings).
 
-Debian maintainer metadata uses an explicit local-build placeholder address; replace it before a public package release. Original author Cocoa Oikawa and MIT attribution remain in the source.
+The application gives only its login-switch images a nonzero font size to avoid a GTK 4.14 baseline issue triggered by zero-font theme rules. User theme files are never rewritten. The exact Ubuntu theme correction was confirmed by the user; the new application-local guard still needs confirmation on that machine. See [theme compatibility](docs/faq.md#gtkimage-baseline-warnings).
 
-Both packages install the same `nekoinfo` launcher, application-menu entry and `hicolor` icon. No root service runs in the background. Close the window to exit. Repeated launches in one desktop session present the existing window.
+## Data and development
 
-On Linux the launcher defaults to GTK's Cairo renderer to avoid slow GPU-driver initialization on systems where EGL/Mesa probing fails. This process-local choice also applies when launched from the application menu or at login; it does not change system graphics settings. An explicitly set `GSK_RENDERER` is preserved (for example, `GSK_RENDERER=gl nekoinfo`). Resource use still needs measurement on the target machine; software rendering is not a guarantee of lower CPU use.
+CPU is averaged over logical processors. Memory used is **total − available**; available includes reclaimable caches. Network aggregates non-loopback interfaces, so VPNs and bridges can count traffic more than once. [Details and limitations](docs/faq.md#understanding-the-readings).
 
-For source development with distro runtime dependencies installed:
+Python 3.11+, GTK4, PyGObject, GI Cairo, pycairo and psutil are required. With distro runtime dependencies installed:
 
 ```sh
 PYTHONPATH=src python3 -m nekoinfo
 PYTHONPATH=src python3 -m unittest discover -s tests -v
-python3 -m build
 ```
 
-`nekoinfo --version` (or `PYTHONPATH=src python3 -m nekoinfo --version`) works without GTK. A missing GUI dependency produces a short installation diagnostic. GTK/GI are supplied by the distribution rather than automatically installed from PyPI.
+Build, headless GUI checks and contribution guidance are in [building.md](docs/building.md). Reproducible checks and outstanding Linux validation are in [testing.md](docs/testing.md). Changes are tracked in [CHANGELOG.md](CHANGELOG.md).
 
-## Reading the numbers
+## License and history
 
-CPU is the mean of the logical processors sampled in one nonblocking interval. CPU and network wait for an initial baseline. Memory used means **total − available**; available includes reclaimable caches and is not simply free RAM. Swap is outside this overview.
-
-Download and upload aggregate non-loopback network interfaces using counter differences divided by the actual monotonic elapsed time. VPNs, bridges and virtual interfaces can count traffic twice; this is not exact Internet bandwidth. Interface changes, decreasing counters, errors and long/resume gaps reset the baseline. Missing metrics do not stop other readings. Curves use actual timestamps, show only collected data and leave gaps for unavailable readings. History is bounded to 60 seconds and 128 samples, never saved to disk.
-
-**Start at login** defaults off. Enabling writes only an application-owned `$XDG_CONFIG_HOME/autostart/nekoinfo.desktop` (default `~/.config/autostart/`). Disable it before uninstalling, or remove that file yourself afterward. An unrelated file at that path is left untouched and an error is shown. This setting launches at desktop login, not system boot.
-
-On GTK versions before 4.20, system dark/light preference is read asynchronously from the desktop appearance portal; without a portal, the native GTK theme remains the fallback. Newer GTK follows the setting directly.
-
-This is a normal movable/closable window. Desktop pinning, process management, GPU/temperature/disk metrics, remote monitoring and animated mascots are outside this version. It follows desktop font/theme settings; the old HTML-path/window-position configuration is not migrated.
-
-The existing `screenshot.jpg` shows the **historical browser-based version**, not this release. No new desktop screenshot or performance figure is supplied until captured on the target Linux desktop. MIT license and original artwork/author attribution are preserved.
+[MIT](LICENSE). Original author: Cocoa Oikawa. Existing icon artwork and attribution are preserved. The 2017 browser-based screenshot remains at [screenshot.jpg](screenshot.jpg); the main screenshot above shows the current native interface.

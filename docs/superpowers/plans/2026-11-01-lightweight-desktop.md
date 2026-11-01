@@ -65,11 +65,11 @@ Design: `docs/superpowers/specs/2026-11-01-lightweight-desktop-design.md`.
 
 ## Implementation evidence (2026-11-01)
 
-18 unittests pass on macOS Python 3.14.3; Python 3.12.12 wheel/sdist build and archive inspection pass. Real psutil sampling and native macOS GTK4.24 smoke pass (single window/timer, all Cairo charts, scrollable expander minimum, close cleanup). Debian/Arch build and installed Linux smoke remain pending; CI is configured, not executed. GNOME/KDE Wayland, 30-minute performance/login/suspend manual checks remain pending in docs/testing.md. Parent coordinates independent review and final branch delivery.
+Initial implementation: 18 unittests passed on macOS Python 3.14.3; Python 3.12.12 wheel/sdist build and archive inspection pass. Real psutil sampling and native macOS GTK4.24 smoke pass (single window/timer, all Cairo charts, scrollable expander minimum, close cleanup). Debian/Arch build and installed Linux smoke remain pending; CI is configured, not executed. GNOME/KDE Wayland, 30-minute performance/login/suspend manual checks remain pending in docs/testing.md. Parent coordinates independent review and final branch delivery.
 
 ## Delivery evidence
 
-- Implemented and independently reviewed; 18 unit tests pass on Python 3.12 and native GTK smoke passes on macOS/Python 3.14.
+- Implemented and independently reviewed; Initial implementation: 18 unit tests passed on Python 3.12 and native GTK smoke passes on macOS/Python 3.14.
 - Installed wheel tested from outside the source tree: CLI version, sampling, drawing, window reuse and cleanup pass.
 - Wheel/sdist build, packaged resources, shell syntax and whitespace checks pass.
 - Spec and code quality reviewers approved after fixing the Debian GTK4.18 dark-preference gap.
@@ -78,3 +78,14 @@ Design: `docs/superpowers/specs/2026-11-01-lightweight-desktop-design.md`.
 - [ ] Measure 30-minute resource usage on Linux before setting a numeric performance budget.
 
 These pending checks are release validation requirements; they are not claimed complete.
+
+## Follow-up delivery (2026-11-01)
+
+- [x] Rename the local development branch to dev at the user's request.
+- [x] Apply Linux Cairo default after a user A/B startup comparison, with three CLI regression tests (21 unit tests total).
+- [x] Add application-scoped nonzero switch-image font guard after the user confirmed the theme's zero-font trigger. Watch the GTK smoke fail before implementation and pass afterward.
+- [x] Rewrite English/Chinese README, build/install guide, FAQ, changelog and validation record around the supplied screenshot_new.png and actual field results.
+- [ ] Confirm the application-local theme guard on Ubuntu with the original unmodified theme.
+- [ ] Push dev and inspect the resulting Debian/Arch CI runs; record their outcomes separately from real desktop validation.
+
+The current validation source of truth is docs/testing.md; the earlier evidence sections describe the initial implementation checkpoint.

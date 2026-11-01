@@ -1,4 +1,5 @@
 include LICENSE
+include README.zh-CN.md CHANGELOG.md screenshot_new.png screenshot.jpg
 recursive-include data *.desktop *.svg
 recursive-include tests *.py
 recursive-include debian *

@@ -1,51 +1,89 @@
-# Validation record
+# Validation and compatibility
 
-## Verified on 2026-11-01
+[README](../README.md) · [Build/install](building.md) · [FAQ](faq.md)
 
-Development host: macOS arm64, Python 3.14.3; isolated build environment Python 3.12.12, psutil 7.2.2. No Linux VM/container engine is installed on this host.
+This file separates automated/local evidence, user-reported Linux observations and checks still required before broader compatibility or performance claims. Updated 2026-11-01.
 
-- `PYTHONPATH=src python3 -m unittest discover -s tests -v`: 18 tests pass (CPU warm-up/averaging, memory semantics, network intervals/interface changes/resets/errors, suspend detection, bounded history, XDG default/ownership/quoting/errors CLI version and portal theme mapping/error/cleanup).
-- `PYTHONPATH=src python3 -m compileall -q src tests`: bytecode compilation.
-- Isolated `python -m build`: wheel and sdist, inspected for a single source package, launcher entry point, desktop file and icon.
-- `git diff --check`: whitespace validation.
-- Real psutil sampling without GTK: warm-up and later sample exercised.
-- Installed the built wheel in an isolated Python 3.14 environment and ran the native GTK smoke from outside the repository, resolving the installed package rather than source. CLI `nekoinfo --version` returned 2.0.0.
-- Visually inspected the actual macOS GTK window: current values and four curves render, processor details expand, and closing exits the process. This does not validate Linux appearance.
-- Shell syntax checked for PKGBUILD and prepare-source.sh; tracked executable bits checked for debian/rules and prepare-source.sh.
-- Independent design and code reviews approved the implementation; the older-GTK desktop appearance adapter was added in response to review.
-- Native GTK smoke: task-local Homebrew GTK 4.24/PyGObject 3.58 runtime, Python 3.14.3, macOS display. `python3 <temporary-runtime>/run.py /tmp/nekoinfo-gtk-env/bin/python tests/gtk_smoke.py` sampled, drew all four charts, repeated activation, closed the window and verified removal of the GLib timer. This is not Linux compatibility evidence; the temporary runtime is not part of the application.
+## Current evidence
 
-The GTK smoke intentionally fails when dependencies/display are absent. On Linux with distro dependencies, run `xvfb-run -a dbus-run-session -- python3 tests/gtk_smoke.py` after installing the package, or set `PYTHONPATH=src` to test source. CI config builds/installs Debian and Arch packages and runs this smoke against the installed package; CI execution is not yet verified.
+| Check | Result | Scope |
+| --- | --- | --- |
+| Unit tests | 21 pass | Sampling/history, metric recovery, suspend detection, autostart ownership/quoting/errors, CLI renderer selection and theme adapter |
+| Python compilation | Pass | src and tests |
+| Wheel and sdist | Built and inspected | Single source package, launcher metadata, icon and desktop entry |
+| Installed Python wheel | Native GTK smoke passed outside source tree | macOS only; does not validate Linux package placement |
+| Native GTK smoke | Pass | macOS GTK 4.24 / PyGObject 3.58 / Python 3.14.3; drawing, live window/timer, expansion, denied login writes, zero-font theme and cleanup |
+| Ubuntu installation and basic use | User reports success | Ubuntu 24.04.5 LTS x86_64, GNOME 46.0/Mutter, GTK 4.14.5+ds-0ubuntu0.10 |
+| Screenshot | User-provided real window capture | ../screenshot_new.png; custom dark theme, processor details expanded |
+| Independent review | Initial app and renderer fix reviewed | New theme guard/documentation reviewed separately before push |
+| CI configuration | Debian stable and Arch jobs provided | Consult actual GitHub Actions results; configuration alone is not a successful run |
 
-## Pending target validation
+Development host: macOS arm64. Python 3.12.12 with psutil 7.2.2 is used for isolated unit/build checks. No Linux VM/container engine is installed locally. The temporary macOS GTK test runtime is not shipped with the application.
 
-### User-reported Ubuntu result
+## Ubuntu field report
 
-Ubuntu 24.04.5 LTS x86_64, GNOME 46.0 (user-reported; GTK/Mesa versions and session type not yet collected): package installation completed, `nekoinfo` eventually opens and refreshes normally. Startup takes approximately 30 seconds. Terminal output reports EGL/Mesa device initialization failures, including `ZINK: failed to choose pdev` and `egl failed to create dri2 screen`, followed by two GtkImage baseline warnings.
+The user built/installed the package, opened the window and observed normal live refresh. Session type (X11/Wayland), Mesa version, scale factor and long-duration resource measurements have not been collected. The supplied screenshot confirms the native dark window and expanded per-core view; it is not a resource-use benchmark.
 
-Follow-up comparison reported by the user: closing the existing window and launching `GSK_RENDERER=cairo nekoinfo` makes the window appear immediately, with no EGL/Mesa warnings. The two GtkImage baseline warnings remain. This isolates renderer selection as the effective startup workaround on this machine, but does not identify a specific faulty graphics driver. The Linux launcher now defaults to Cairo before GTK imports, while preserving an explicitly set `GSK_RENDERER`. No system settings are changed.
+### Startup renderer
 
-GtkImage baseline warnings are tracked separately: they persist without the startup delay, and their exact widget/GTK-version cause has not been reproduced locally. Do not hide warnings globally or claim they are fixed. Full GTK version, theme and a stack trace at the warning would be needed to locate their source.
+Initial launch took approximately 30 seconds and reported EGL/Mesa/ZINK initialization warnings. After closing the window and launching `GSK_RENDERER=cairo nekoinfo`, the user reported immediate display and no EGL/Mesa warnings. Two GtkImage baseline warnings remained.
 
-Regression tests verify Linux default selection before GTK import, preservation of explicit renderer preferences, and unchanged defaults on other platforms. The full suite now contains 21 tests. The modified default still requires reinstallation and confirmation on the user's Ubuntu machine; the user comparison used the explicit environment variable on the previous build.
+This A/B comparison establishes an effective renderer workaround on that machine, not a diagnosis of a specific faulty driver. The Linux launcher now sets the Cairo default before GTK imports, preserving explicit renderer preferences. Terminal, menu and login launch paths use that launcher. The integrated default still needs confirmation after installing the updated build on the Ubuntu machine; the field comparison used an explicit environment variable.
 
-This report establishes installation and basic window/refresh behavior on one Ubuntu machine; it does not establish complete desktop compatibility, performance, or Debian/Arch package validation.
+### Theme baseline warning
 
-| Environment | Package build/install | Menu launch/window | Theme, scaling, login/suspend |
+User configuration: WM theme Adwaita, application theme reported as WhiteSur-Dark-grey [GTK2/3]. GTK4 also had gtk.css and gtk-dark.css linked to gtk-Dark.css. Both supplied dark/light theme files contained `switch { ... font-size: 0; ... }`; settings.ini only set gtk-application-prefer-dark-theme=0.
+
+Observed comparisons:
+
+1. Cairo + existing configuration: immediate startup; baseline warnings remain.
+2. Cairo + GTK_THEME=Adwaita: warnings remain.
+3. Cairo + Adwaita + fresh temporary XDG_CONFIG_HOME: no warnings.
+4. Existing theme files with only switch font-size changed from 0 to 13px: user reports no warnings.
+
+GTK 4.14.5 computes image baseline ratios from font ascent/descent; zero font metrics explain the observed failure mechanism. The single-rule theme correction was confirmed by the user. It does not establish that every WhiteSur version or GTK installation is affected.
+
+For distribution, Neko Info instead marks its login switch and explicitly sets only its direct image children's font to 13px. The application's provider uses application priority, leaving user theme colors and geometry intact. This explicit child value overrides the problematic inherited parent value. No user configuration is rewritten, and warnings are not filtered.
+
+The GTK smoke now injects a user-priority zero-font parent rule and verifies the marked images retain nonzero font metrics. This passes locally on GTK 4.24, where the original invalid baseline was not reproduced. The application-local guard still needs installation and confirmation on Ubuntu GTK 4.14.5, with an unmodified zero-font theme. Healthy light/dark themes and high-DPI appearance must also be checked.
+
+## Target matrix
+
+| Environment | Package build/install | Window/live refresh | Theme/login/suspend/scaling/performance |
 | --- | --- | --- | --- |
+| Ubuntu 24.04.5, GNOME 46.0, GTK 4.14.5; session type unreported | User-reported success | User-reported success; screenshot supplied | Theme-file correction confirmed; app-local guard and remaining checks pending |
 | Debian stable, GNOME Wayland | Pending | Pending | Pending |
 | Debian stable, KDE Wayland | Pending | Pending | Pending |
 | Arch Linux, GNOME Wayland | Pending | Pending | Pending |
 | Arch Linux, KDE Wayland | Pending | Pending | Pending |
-| X11 | Pending | Pending | Pending |
+| Other X11 sessions | Pending | Pending | Pending |
 
-Record `/etc/os-release`, `uname -a`, Python/psutil/GTK versions, GNOME Shell or Plasma version, session type, display scaling and hardware alongside results. Container/Xvfb smoke does not validate GNOME/KDE or Wayland desktop behavior. Package commands and CI must still execute in clean Linux environments before package readiness is claimed.
+A Debian/Arch container build and installed Xvfb smoke can validate packaging and GTK startup, but not GNOME/KDE Wayland behavior. Login execution requires an actual desktop session. No measured CPU/RSS budget is published yet.
 
-## Repeatable desktop checks
+## Reproduce automated checks
 
-1. Build/install a package using README commands. Confirm `nekoinfo --version`, menu launch, icon resolution, moving/resizing and ordinary-user launch. Launch twice and confirm one window/process/timer. Expand processors on a high-core system: only the details scroll; collapse returns to compact overview.
-2. Change system light/dark theme and display scale (100%, 150%, 200%). Check all labels, curves, contrast, tooltips, window decorations and keyboard navigation. Capture a real window image and a full desktop image, recording resolution/scale; do not substitute the historical screenshot.
-3. Compare CPU with a known load and per-core readings, memory with total/available, and transfer traffic with interface counters. Disconnect/reconnect networking, create/remove a VPN, and suspend/resume. Expect waiting/gaps rather than negative rates or a post-resume spike. Make one metric unavailable where possible and confirm other metrics continue.
-4. Confirm login switch initially off and no autostart file. Enable it and log out/in: one window opens. Disable and log out/in: none opens. Check XDG_CONFIG_HOME override and write-denied directory behavior. No root service or background restart is expected.
-5. Leave the window idle for 30 minutes. Record process CPU and RSS at 0, 5, 15 and 30 minutes using `ps -p PID -o pid,etime,time,rss`; state CPU calculation (CPU time difference divided by elapsed wall time) and RSS units. Record history length (at most 128 and 60 seconds) using an instrumented development session if needed. No performance budget is asserted until measured. Repeat with processor details expanded and confirm no sustained growth.
-6. Close the window and confirm its PID is gone and no autostart/service launches it again. Upgrade and uninstall the package; confirm launcher/desktop/icon removal and document the user-owned autostart file behavior.
+With dependencies installed as described in building.md:
+
+```sh
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 -m compileall -q src tests
+python3 -m build --no-isolation
+PYTHONPATH=src xvfb-run -a dbus-run-session -- python3 tests/gtk_smoke.py
+git diff --check
+```
+
+To test the installed Linux module, omit PYTHONPATH for the smoke. The smoke fails when dependencies/display are missing. Mac native smoke is supplementary and not a substitute for target validation.
+
+## Desktop and release checklist
+
+Record /etc/os-release, uname -a, Python/psutil/GTK versions, desktop version, session type, scaling and hardware with results.
+
+- Build/install the package in a clean target distribution; verify launcher, desktop entry, icon, upgrade and uninstall. Check menu launch and repeated activation.
+- Validate default renderer startup without an explicit environment variable on the reported Ubuntu machine.
+- Test the application-local theme guard with the original zero-font switch rule. Check default light/dark themes, system preference changes, contrast, keyboard use and 100%/150%/200% display scaling.
+- Expand processor details on a high-core machine; only that region should scroll, and collapse should restore the compact view.
+- Compare CPU/memory/network with known load/counters. Disconnect/reconnect networking, add/remove a VPN, suspend/resume, and trigger an individual metric failure. Expect gaps/waiting instead of negative rates or resume spikes.
+- Confirm login startup is initially off. Enable, log out/in and check one window; disable and repeat. Verify write-denied XDG directories produce a visible error and an unrelated autostart file is untouched.
+- Run idle for 30 minutes; record process CPU time and RSS at 0/5/15/30 minutes using `ps -p PID -o pid,etime,time,rss`. State units and CPU-time calculation. Repeat with details expanded. History stays within 60 seconds/128 samples; require no sustained growth.
+- Close the window and verify process exit/timer cleanup. Disable login startup before uninstalling; document the user-owned entry if left behind.
+- Retain a current window screenshot and add a full desktop capture with resolution/scale for future layout comparison.

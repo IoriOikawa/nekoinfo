@@ -22,6 +22,15 @@ class NekoWindow(Gtk.ApplicationWindow):
         super().__init__(application=application, title='Neko Info')
         self.set_default_size(360, -1)
         self.set_icon_name('nekoinfo')
+        # Some themes give switches a zero font size. GTK 4.14 derives the
+        # internal images' baselines from that font, so give just our images
+        # a nonzero font without changing the theme's colors or geometry.
+        self.style_provider = Gtk.CssProvider()
+        self.style_provider.load_from_data(
+            b'switch.nekoinfo-startup-switch > image { font-size: 13px; }')
+        Gtk.StyleContext.add_provider_for_display(
+            self.get_display(), self.style_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         self.sampler, self.history = Sampler(), History()
         self.timer_id = 0
         self.autostart = Autostart()
@@ -64,6 +73,7 @@ class NekoWindow(Gtk.ApplicationWindow):
         startup = Gtk.Box(spacing=12)
         startup.append(Gtk.Label(label='Start at login', hexpand=True, xalign=0))
         self.switch = Gtk.Switch(valign=Gtk.Align.CENTER)
+        self.switch.add_css_class('nekoinfo-startup-switch')
         self.startup_error = Gtk.Label(xalign=0, wrap=True)
         self.startup_error.add_css_class('error')
         try:
@@ -119,6 +129,10 @@ class NekoWindow(Gtk.ApplicationWindow):
         if self.timer_id:
             GLib.source_remove(self.timer_id)
             self.timer_id = 0
+        if self.style_provider is not None:
+            Gtk.StyleContext.remove_provider_for_display(
+                self.get_display(), self.style_provider)
+            self.style_provider = None
         self.get_application().window = None
         return False
 
