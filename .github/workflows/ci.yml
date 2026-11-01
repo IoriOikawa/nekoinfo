@@ -1,0 +1,49 @@
+name: Linux packages
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  debian:
+    runs-on: ubuntu-latest
+    container: debian:stable
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build and GTK dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential debhelper dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-build python3-wheel python3-psutil python3-gi python3-gi-cairo python3-cairo gir1.2-gtk-4.0 xvfb xauth dbus-x11 desktop-file-utils
+      - run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+      - run: dpkg-buildpackage -us -uc -b
+      - name: Install and verify actual package
+        run: |
+          apt-get install -y ../nekoinfo_2.0.0_all.deb
+          dpkg-deb -f ../nekoinfo_2.0.0_all.deb Depends | grep -E '(^|, )python3(:any)?([ ,(]|$)'
+          nekoinfo --version
+          desktop-file-validate /usr/share/applications/nekoinfo.desktop
+          test -f /usr/share/icons/hicolor/scalable/apps/nekoinfo.svg
+          xvfb-run -a dbus-run-session -- python3 tests/gtk_smoke.py
+          mkdir artifacts
+          cp ../*.deb artifacts/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian-package
+          path: artifacts/*.deb
+  arch:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@v4
+      - run: pacman -Syu --noconfirm python python-psutil python-gobject python-cairo gtk4 python-build python-installer python-setuptools python-wheel xorg-server-xvfb xorg-xauth dbus desktop-file-utils
+      - name: Prepare source and build as ordinary user
+        run: |
+          useradd -m builder
+          chown -R builder .
+          su builder -c './packaging/arch/prepare-source.sh'
+          su builder -c 'cd packaging/arch && makepkg --noconfirm'
+          pacman -U --noconfirm packaging/arch/*.pkg.tar.zst
+          nekoinfo --version
+          desktop-file-validate /usr/share/applications/nekoinfo.desktop
+          test -f /usr/share/icons/hicolor/scalable/apps/nekoinfo.svg
+          su builder -c 'xvfb-run -a dbus-run-session -- python tests/gtk_smoke.py'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: packaging/arch/*.pkg.tar.zst

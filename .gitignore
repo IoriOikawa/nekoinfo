@@ -1,0 +1,13 @@
+__pycache__/
+.DS_Store
+*.egg-info/
+build/
+dist/
+.venv/
+*.deb
+*.buildinfo
+*.changes
+packaging/arch/nekoinfo-*.tar.gz
+packaging/arch/pkg/
+packaging/arch/src/
+*.pkg.tar.zst

@@ -1,0 +1,13 @@
+Source: nekoinfo
+Section: utils
+Priority: optional
+Maintainer: Cocoa Oikawa <noreply@example.invalid>
+Build-Depends: debhelper-compat (= 13), dh-python, pybuild-plugin-pyproject, python3-all, python3-setuptools, python3-psutil
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+
+Package: nekoinfo
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}, python3-psutil, python3-gi, python3-gi-cairo, python3-cairo, gir1.2-gtk-4.0
+Description: small native desktop system monitor
+ A compact GTK4 window with CPU, memory and network trends.

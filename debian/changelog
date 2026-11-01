@@ -1,0 +1,5 @@
+nekoinfo (2.0.0) unstable; urgency=medium
+
+  * Replace the browser-based monitor with a native GTK4 application.
+
+ -- Cocoa Oikawa <noreply@example.invalid>  Sun, 01 Nov 2026 06:00:00 -0500

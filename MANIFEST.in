@@ -1,0 +1,12 @@
+include LICENSE
+include README.zh-CN.md CHANGELOG.md screenshot_new.png screenshot.jpg
+recursive-include data *.desktop *.svg
+recursive-include tests *.py
+recursive-include debian *
+recursive-include packaging *
+recursive-include docs *.md
+include .github/workflows/ci.yml
+exclude packaging/arch/nekoinfo-*.tar.gz
+prune packaging/arch/pkg
+prune packaging/arch/src
+global-exclude *.pyc *.pkg.tar.*
