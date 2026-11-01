@@ -38,6 +38,8 @@ Debian maintainer metadata uses an explicit local-build placeholder address; rep
 
 Both packages install the same `nekoinfo` launcher, application-menu entry and `hicolor` icon. No root service runs in the background. Close the window to exit. Repeated launches in one desktop session present the existing window.
 
+On Linux the launcher defaults to GTK's Cairo renderer to avoid slow GPU-driver initialization on systems where EGL/Mesa probing fails. This process-local choice also applies when launched from the application menu or at login; it does not change system graphics settings. An explicitly set `GSK_RENDERER` is preserved (for example, `GSK_RENDERER=gl nekoinfo`). Resource use still needs measurement on the target machine; software rendering is not a guarantee of lower CPU use.
+
 For source development with distro runtime dependencies installed:
 
 ```sh

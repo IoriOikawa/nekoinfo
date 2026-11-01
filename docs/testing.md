@@ -19,6 +19,18 @@ The GTK smoke intentionally fails when dependencies/display are absent. On Linux
 
 ## Pending target validation
 
+### User-reported Ubuntu result
+
+Ubuntu 24.04.5 LTS x86_64, GNOME 46.0 (user-reported; GTK/Mesa versions and session type not yet collected): package installation completed, `nekoinfo` eventually opens and refreshes normally. Startup takes approximately 30 seconds. Terminal output reports EGL/Mesa device initialization failures, including `ZINK: failed to choose pdev` and `egl failed to create dri2 screen`, followed by two GtkImage baseline warnings.
+
+Follow-up comparison reported by the user: closing the existing window and launching `GSK_RENDERER=cairo nekoinfo` makes the window appear immediately, with no EGL/Mesa warnings. The two GtkImage baseline warnings remain. This isolates renderer selection as the effective startup workaround on this machine, but does not identify a specific faulty graphics driver. The Linux launcher now defaults to Cairo before GTK imports, while preserving an explicitly set `GSK_RENDERER`. No system settings are changed.
+
+GtkImage baseline warnings are tracked separately: they persist without the startup delay, and their exact widget/GTK-version cause has not been reproduced locally. Do not hide warnings globally or claim they are fixed. Full GTK version, theme and a stack trace at the warning would be needed to locate their source.
+
+Regression tests verify Linux default selection before GTK import, preservation of explicit renderer preferences, and unchanged defaults on other platforms. The full suite now contains 21 tests. The modified default still requires reinstallation and confirmation on the user's Ubuntu machine; the user comparison used the explicit environment variable on the previous build.
+
+This report establishes installation and basic window/refresh behavior on one Ubuntu machine; it does not establish complete desktop compatibility, performance, or Debian/Arch package validation.
+
 | Environment | Package build/install | Menu launch/window | Theme, scaling, login/suspend |
 | --- | --- | --- | --- |
 | Debian stable, GNOME Wayland | Pending | Pending | Pending |

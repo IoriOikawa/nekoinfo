@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 from . import __version__
 
@@ -7,6 +8,10 @@ def main():
     parser = argparse.ArgumentParser(description='Neko Info native desktop system monitor')
     parser.add_argument('--version', action='version', version=f'Neko Info {__version__}')
     parser.parse_args()
+    if sys.platform.startswith('linux'):
+        # Avoid slow GPU-driver probing for this small, infrequently redrawn UI.
+        # Set before importing GTK, and preserve an explicit user preference.
+        os.environ.setdefault('GSK_RENDERER', 'cairo')
     try:
         import gi
         gi.require_version('Gtk', '4.0')
